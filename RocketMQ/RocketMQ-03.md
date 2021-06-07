@@ -68,7 +68,7 @@ RocketMQ消息的存储是由ConsumeQueue和CommitLog配合完成 的，消息�
 ![](img/消息存储结构.png)
 
 * CommitLog：存储消息的元数据
-* ConsumerQueue：存储消息在CommitLog的索引
+* ConsumeQueue：存储消息在CommitLog的索引
 * IndexFile：为了消息查询提供了一种通过key或时间区间来查询消息的方法，这种通过IndexFile来查找消息的方法不影响发送与消费消息的主流程
 
 ### 1.1.5 刷盘机制
@@ -510,7 +510,7 @@ NameServer就是为了解决以上问题设计的。
 
 
 
-Broker消息服务器在启动的时向所有NameServer注册，消息生产者（Producer）在发送消息时之前先从NameServer获取Broker服务器地址列表，然后根据负载均衡算法从列表中选择一台服务器进行发送。NameServer与每台Broker保持长连接，并间隔30S检测Broker是否存活，如果检测到Broker宕机，则从路由注册表中删除。但是路由变化不会马上通知消息生产者。这样设计的目的是为了降低NameServer实现的复杂度，在消息发送端提供容错机制保证消息发送的可用性。
+Broker消息服务器在启动的时向所有NameServer注册，消息生产者（Producer）在发送消息时之前先从NameServer获取Broker服务器地址列表，然后根据负载均衡算法从列表中选择一台服务器进行发送。NameServer与每台Broker保持长连接，并间隔30S检测Broker是否存活，如果检测到Broker宕机，则从路由注册表中删除。但是路由变化不会马上通知消息生产者和消费者。这样设计的目的是为了降低NameServer实现的复杂度，在消息发送端提供容错机制保证消息发送的可用性。
 
 NameServer本身的高可用是通过部署多台NameServer来实现，但彼此之间不通讯，也就是NameServer服务器之间在某一个时刻的数据并不完全相同，但这对消息发送并不会造成任何影响，这也是NameServer设计的一个亮点，总之，RocketMQ设计追求简单高效。
 
@@ -690,7 +690,7 @@ private final HashMap<String/* brokerAddr */, List<String>/* Filter Server */> f
 
 **filterServerTable：**Broker上的FilterServer列表，用于类模式消息过滤。
 
-> RocketMQ基于定于发布机制，一个Topic拥有多个消息队列，一个Broker为每一个主题创建4个读队列和4个写队列。多个Broker组成一个集群，集群由相同的多台Broker组成Master-Slave架构，brokerId为0代表Master，大于0为Slave。BrokerLiveInfo中的lastUpdateTimestamp存储上次收到Broker心跳包的时间。
+> RocketMQ基于定于发布机制，一个Topic拥有多个消息队列，一个Broker为每一个主题创建4个读队列和4个写队列。多个Broker组成一个集群，集群由相同brokerName的多台Broker组成Master-Slave架构，brokerId为0代表Master，大于0为Slave。BrokerLiveInfo中的lastUpdateTimestamp存储上次收到Broker心跳包的时间。
 
 ![](img/实体数据实例.png)
 
@@ -2279,7 +2279,7 @@ handleHA(result, putMessageResult, msg);
 
 ### 2.4.3 存储文件
 
-![](../%E6%96%87%E6%A1%A3/img/%E5%AD%98%E5%82%A8%E6%96%87%E4%BB%B6.png)
+![](..//img/%E5%AD%98%E5%82%A8%E6%96%87%E4%BB%B6.png)
 
 - commitLog：消息存储目录
 - config：运行期间一些配置信息
